@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import com.example.investidorapp.ui.theme.InvestidorAppTheme
 import com.example.investidorapp.ui.view.InvestidorScreen
 import com.example.investidorapp.ui.viewmodel.InvestimentosViewModel
+import com.google.firebase.database.FirebaseDatabase
 
 class MainActivity : ComponentActivity() {
 
@@ -19,6 +20,19 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true)
+
+        val db = FirebaseDatabase.getInstance()
+        val ref = db.getReference("testeFirebase")
+
+        ref.setValue("Primeira mensagem do app")
+            .addOnSuccessListener {
+                println("✔️ Dados enviados com sucesso para o Realtime Database")
+            }
+            .addOnFailureListener {
+                it.printStackTrace()
+            }
 
         solicitarPermissaoNotificacao()
 
