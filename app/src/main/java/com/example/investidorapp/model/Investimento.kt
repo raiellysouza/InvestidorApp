@@ -1,6 +1,6 @@
 package com.example.investidorapp.model
 
-data class Investimento (
+data class Investimento(
     val nome: String = "",
-    val valor: Int = 0
+    val valor: Double = 0.0
 )

@@ -8,6 +8,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -17,8 +19,6 @@ import com.example.investidorapp.model.Investimento
 import com.google.firebase.database.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import android.Manifest
-import android.content.pm.PackageManager
 
 class InvestimentosViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -34,7 +34,7 @@ class InvestimentosViewModel(application: Application) : AndroidViewModel(applic
         database.addChildEventListener(object : ChildEventListener {
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
                 val nome = snapshot.child("nome").getValue(String::class.java) ?: "Desconhecido"
-                val valor = snapshot.child("valor").getValue(Int::class.java) ?: 0
+                val valor = snapshot.child("valor").getValue(Double::class.java) ?: 0.0
                 Log.d("FirebaseData", "Investimento atualizado: $nome R$ $valor")
                 enviarNotificacao("Investimento Atualizado", "$nome agora vale R$ $valor")
                 carregarInvestimentos()
@@ -56,12 +56,12 @@ class InvestimentosViewModel(application: Application) : AndroidViewModel(applic
     }
 
     private fun carregarInvestimentos() {
-        database.addValueEventListener(object : ValueEventListener {
+        database.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val lista = mutableListOf<Investimento>()
                 for (item in snapshot.children) {
                     val nome = item.child("nome").getValue(String::class.java) ?: "Desconhecido"
-                    val valor = item.child("valor").getValue(Int::class.java) ?: 0
+                    val valor = item.child("valor").getValue(Double::class.java) ?: 0.0
                     lista.add(Investimento(nome, valor))
                 }
                 _investimentos.value = lista
@@ -104,7 +104,7 @@ class InvestimentosViewModel(application: Application) : AndroidViewModel(applic
         )
 
         val notification = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info) // Ícone padrão
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(titulo)
             .setContentText(mensagem)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
